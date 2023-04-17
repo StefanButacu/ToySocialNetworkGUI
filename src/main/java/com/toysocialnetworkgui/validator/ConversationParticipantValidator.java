@@ -4,6 +4,18 @@ import com.toysocialnetworkgui.domain.ConversationParticipant;
 
 public class ConversationParticipantValidator implements Validator<ConversationParticipant> {
 
+    private static ConversationParticipantValidator instance;
+    private ConversationParticipantValidator(){
+
+    }
+    public static ConversationParticipantValidator getInstance() {
+        if(instance == null){
+            instance = new ConversationParticipantValidator();
+        }
+        return instance;
+    }
+
+
     /**
      * Validates a MessageReceiver object
      * @param conversationParticipant - the ConversationParticipant to be validated

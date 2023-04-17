@@ -4,18 +4,53 @@ import com.toysocialnetworkgui.domain.User;
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.UserRepository;
 import com.toysocialnetworkgui.repository.observer.Observable;
+import com.toysocialnetworkgui.validator.UserValidator;
 import com.toysocialnetworkgui.validator.Validator;
 import javafx.application.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class UserDbRepo implements Observable, UserRepository {
-    private final String url, username, password, usersTable;
-    private final Validator<User> validator;
+    private String url, username, password, usersTable;
+    private  Validator<User> validator;
 
-    public UserDbRepo(String url, String username, String password, Validator<User> validator, String usersTable) {
+    private static UserDbRepo instance;
+    private UserDbRepo(){
+
+    }
+    public static UserDbRepo getInstance() {
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String usersTable = properties.getProperty("usersTable");
+                instance = new UserDbRepo(url, username, password, UserValidator.getInstance(), usersTable);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+    private UserDbRepo(String url, String username, String password, Validator<User> validator, String usersTable) {
         this.url = url;
         this.username = username;
         this.password = password;

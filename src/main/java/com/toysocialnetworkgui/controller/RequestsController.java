@@ -135,7 +135,7 @@ public class RequestsController implements Observer {
                 ImageView imageView = new ImageView();
                 imageView.setFitHeight(30);
                 imageView.setFitWidth(30);
-                imageView.setImage(new Image("images/add_friend_man.png"));
+                imageView.setImage(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources\\images/add_friend_man.png"));
                 return imageView;
             }
 

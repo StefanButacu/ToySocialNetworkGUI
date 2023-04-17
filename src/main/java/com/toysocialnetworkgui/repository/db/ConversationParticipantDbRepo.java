@@ -2,16 +2,54 @@ package com.toysocialnetworkgui.repository.db;
 
 import com.toysocialnetworkgui.domain.ConversationParticipant;
 import com.toysocialnetworkgui.repository.observer.Observable;
+import com.toysocialnetworkgui.validator.ConversationParticipantValidator;
+import com.toysocialnetworkgui.validator.UserValidator;
 import com.toysocialnetworkgui.validator.Validator;
 import javafx.application.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class ConversationParticipantDbRepo implements Observable {
-    private final String url, username, password, participantsTable;
-    private final Validator<ConversationParticipant> validator;
+    private  String url, username, password, participantsTable;
+    private  Validator<ConversationParticipant> validator;
+
+    private static ConversationParticipantDbRepo instance;
+    private ConversationParticipantDbRepo(){
+
+    }
+    public static ConversationParticipantDbRepo getInstance() {
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String participantsTable = properties.getProperty("participantsTable");
+                instance = new ConversationParticipantDbRepo(url, username, password, ConversationParticipantValidator.getInstance(), participantsTable);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+
 
     public ConversationParticipantDbRepo(String url, String username, String password, Validator<ConversationParticipant> validator, String participantsTable) {
         this.url = url;

@@ -3,19 +3,59 @@ package com.toysocialnetworkgui.repository.db;
 import com.toysocialnetworkgui.domain.Message;
 import com.toysocialnetworkgui.repository.observer.Observable;
 import com.toysocialnetworkgui.validator.MessageValidator;
+import com.toysocialnetworkgui.validator.UserValidator;
 import com.toysocialnetworkgui.validator.Validator;
 import javafx.application.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class MessageDbRepo implements Observable {
-    private final String url, username, password, messagesTable;
-    private final Validator<Message> validator;
+    private  String url;
+    private String username;
+    private String password;
+    private String messagesTable;
+    private  Validator<Message> validator;
 
-    public MessageDbRepo(String url, String username, String password, MessageValidator validator, String messagesTable) {
+    private static MessageDbRepo instance;
+
+    private MessageDbRepo(){
+
+    }
+
+    public static MessageDbRepo getInstance(){
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String messagesTable = properties.getProperty("messagesTable");
+                instance = new MessageDbRepo(url, username, password, MessageValidator.getInstance(), messagesTable);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+    private MessageDbRepo(String url, String username, String password, MessageValidator validator, String messagesTable) {
         this.url = url;
         this.username = username;
         this.password = password;

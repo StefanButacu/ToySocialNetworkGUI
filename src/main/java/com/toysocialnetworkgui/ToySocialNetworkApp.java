@@ -43,7 +43,7 @@ public class ToySocialNetworkApp extends Application {
 
         primaryStage.setResizable(false);
         primaryStage.setTitle("Big Blana Society");
-        primaryStage.getIcons().add(new Image("images/logo_small.png"));
+        primaryStage.getIcons().add(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources\\images\\logo_small.png"));
 
         primaryStage.setScene(loginScene);
         primaryStage.show();
@@ -56,24 +56,25 @@ public class ToySocialNetworkApp extends Application {
     private void initialize() {
         String url = "jdbc:postgresql://localhost:5432/ToySocialNetwork";
         String username = "postgres";
-        String password = "postgres";
+        String password = "root";
         // USER
-        UserDbRepo uRepo = new UserDbRepo(url, username, password, new UserValidator(), "users");
+        UserDbRepo uRepo = UserDbRepo.getInstance();
         UserService uSrv = new UserService(uRepo);
-        FriendshipDbRepo fRepo = new FriendshipDbRepo(url, username, password, new FriendshipValidator(), "friendships", "users");
-        FriendshipRequestDbRepo friendshipRequestRepo = new FriendshipRequestDbRepo(url, username, password,"requests");
+        FriendshipDbRepo fRepo = FriendshipDbRepo.getInstance();
+
+        FriendshipRequestDbRepo friendshipRequestRepo = FriendshipRequestDbRepo.getInstance();
         FriendshipService fSrv = new FriendshipService(fRepo, friendshipRequestRepo);
         // CONVERSATION
-        ConversationDbRepo cRepo = new ConversationDbRepo(url, username, password, "conversations");
-        MessageDbRepo mRepo = new MessageDbRepo(url, username, password, new MessageValidator(), "messages");
+        ConversationDbRepo cRepo =ConversationDbRepo.getInstance();
+        MessageDbRepo mRepo = MessageDbRepo.getInstance();
         MessageService mSrv = new MessageService(mRepo);
-        ConversationParticipantDbRepo crRepo = new ConversationParticipantDbRepo(url, username, password, new ConversationParticipantValidator(), "participants");
+        ConversationParticipantDbRepo crRepo = ConversationParticipantDbRepo.getInstance();
         ConversationService mrSrv = new ConversationService(cRepo, crRepo);
         Network network = new Network(uRepo, fRepo);
 
         /// EVENTS
-        EventDbRepo eventRepo = new EventDbRepo(url, username, password, "events");
-        EventsSubscriptionDbRepo eventsSubscriptionRepo = new EventsSubscriptionDbRepo(url, username, password,"events_subscription", "events");
+        EventDbRepo eventRepo = EventDbRepo.getInstance();
+        EventsSubscriptionDbRepo eventsSubscriptionRepo = EventsSubscriptionDbRepo.getInstance();
         EventService eventService = new EventService(eventRepo, eventsSubscriptionRepo);
         this.service = new Service(uSrv, fSrv, mSrv, mrSrv, network, eventService);
     }

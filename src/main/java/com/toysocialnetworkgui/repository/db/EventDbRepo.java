@@ -5,23 +5,62 @@ import com.toysocialnetworkgui.domain.Event;
 import com.toysocialnetworkgui.repository.EventRepository;
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.validator.EventValidator;
+import com.toysocialnetworkgui.validator.FriendshipValidator;
 import com.toysocialnetworkgui.validator.Validator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class EventDbRepo implements EventRepository {
-    private final String url, username, password, eventTable;
-    private final Validator<Event> validator = new EventValidator();
+    private  String url, username, password, eventTable;
+    private  Validator<Event> validator;
 
-    public EventDbRepo(String url, String username, String password, String eventTable){
+    private static EventDbRepo instance;
+
+    private EventDbRepo() {
+
+    }
+
+    public static EventDbRepo getInstance(){
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String eventTable = properties.getProperty("eventsTable");
+                instance = new EventDbRepo(url, username, password, eventTable );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+
+
+    private EventDbRepo(String url, String username, String password, String eventTable){
         this.url = url;
         this.username = username;
         this.password = password;
         this.eventTable = eventTable;
+        this.validator = EventValidator.getInstance();
         String sql = "CREATE TABLE IF NOT EXISTS " + eventTable +
                 "(id serial, "+
                 " name varchar NOT NULL," +

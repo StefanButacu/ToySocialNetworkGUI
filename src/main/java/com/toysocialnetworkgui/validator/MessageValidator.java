@@ -4,6 +4,17 @@ import com.toysocialnetworkgui.domain.Message;
 
 public class MessageValidator implements Validator<Message> {
 
+    private static MessageValidator messageValidator;
+    private MessageValidator(){
+
+    }
+    public static MessageValidator getInstance() {
+        if(messageValidator == null){
+            messageValidator = new MessageValidator();
+        }
+        return messageValidator;
+    }
+
     /**
      * Validates a message
      * @param message - the message to be validated

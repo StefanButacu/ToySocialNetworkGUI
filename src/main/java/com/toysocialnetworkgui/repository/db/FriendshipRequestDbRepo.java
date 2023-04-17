@@ -5,17 +5,55 @@ import com.toysocialnetworkgui.domain.REQUESTSTATE;
 import com.toysocialnetworkgui.repository.FriendshipRequestRepository;
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.observer.Observable;
+import com.toysocialnetworkgui.validator.MessageValidator;
 import javafx.application.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class FriendshipRequestDbRepo implements Observable, FriendshipRequestRepository {
-    private final String url, username, password, tableName;
 
-    public FriendshipRequestDbRepo(String url, String username, String password, String tableName){
+    private String url, username, password, tableName;
+    private static FriendshipRequestDbRepo instance;
+
+    private FriendshipRequestDbRepo() {
+
+    }
+
+    public static FriendshipRequestDbRepo getInstance(){
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String friendshipRequestsTable = properties.getProperty("requestsTable");
+                instance = new FriendshipRequestDbRepo(url, username, password, friendshipRequestsTable);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+
+    private FriendshipRequestDbRepo(String url, String username, String password, String tableName){
         this.url = url;
         this.username = username;
         this.password = password;
@@ -39,7 +77,7 @@ public class FriendshipRequestDbRepo implements Observable, FriendshipRequestRep
             throw new DbException(throwables.getMessage());
         }
 
-    }
+        }
 
     public void addRequest(FriendshipRequest request) {
         if (getRequest(request.getFirst(), request.getSecond()) != null) {

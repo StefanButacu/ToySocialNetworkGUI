@@ -4,23 +4,64 @@ import com.toysocialnetworkgui.domain.Friendship;
 import com.toysocialnetworkgui.repository.FriendshipRepository;
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.observer.Observable;
+import com.toysocialnetworkgui.validator.FriendshipValidator;
 import com.toysocialnetworkgui.validator.Validator;
 import javafx.application.Platform;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class FriendshipDbRepo implements Observable, FriendshipRepository {
-    private final String url;
-    private final String username;
-    private final String password;
-    private final String fshipsTable;
-    private final String usersTable;
-    private final Validator<Friendship> val;
+    private  String url;
+    private  String username;
+    private  String password;
+    private  String fshipsTable;
+    private  String usersTable;
+    private  Validator<Friendship> val;
 
-    public FriendshipDbRepo(String url, String username, String password, Validator<Friendship> val, String fshipsTable, String usersTable) {
+    private static FriendshipDbRepo instance;
+
+    private FriendshipDbRepo() {
+
+    }
+
+    public static FriendshipDbRepo getInstance(){
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String usersTable = properties.getProperty("usersTable");
+                String friendshipsTable = properties.getProperty("friendshipsTable");
+                instance = new FriendshipDbRepo(url, username, password, FriendshipValidator.getInstance(),friendshipsTable, usersTable );
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+
+
+
+    private FriendshipDbRepo(String url, String username, String password, Validator<Friendship> val, String fshipsTable, String usersTable) {
         this.url = url;
         this.username = username;
         this.password = password;

@@ -9,6 +9,18 @@ public class UserValidator implements Validator<User> {
     private final Pattern namePattern = Pattern.compile("^[a-zA-Z\s]+$");
     private final Pattern emailPattern = Pattern.compile("^[a-zA-Z0-9._+-]+@[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+){1,2}$");
 
+    private static UserValidator instance;
+    private UserValidator(){
+
+    }
+
+    public static UserValidator getInstance(){
+        if(instance ==null){
+            instance = new UserValidator();
+        }
+        return instance;
+    }
+
     /**
      * Validates a user
      * @param user - the user to be validated

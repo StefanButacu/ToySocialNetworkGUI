@@ -8,14 +8,14 @@ module com.toysocialnetworkgui {
     requires java.sql;
     requires org.apache.pdfbox;
 
-    opens com.toysocialnetworkgui to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.controller to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.utils to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.service to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.domain to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.validator to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.repository to javafx.fxml, javafx.base;
-    opens com.toysocialnetworkgui.repository.db to javafx.fxml, javafx.base;
+    opens com.toysocialnetworkgui to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.controller to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.utils to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.service to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.domain to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.validator to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.repository to javafx.fxml, javafx.base, javafx.graphics;
+    opens com.toysocialnetworkgui.repository.db to javafx.fxml, javafx.base, javafx.graphics;
     exports com.toysocialnetworkgui;
     exports com.toysocialnetworkgui.service;
     exports com.toysocialnetworkgui.controller;

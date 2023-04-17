@@ -3,13 +3,50 @@ package com.toysocialnetworkgui.repository.db;
 import com.toysocialnetworkgui.domain.Conversation;
 import com.toysocialnetworkgui.repository.observer.Observable;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.util.Properties;
 
 public class ConversationDbRepo implements Observable {
-    private final String url, username, password, conversationsTable;
+    private  String url, username, password, conversationsTable;
 
-    public ConversationDbRepo(String url, String username, String password, String conversationsTable) {
+    private static ConversationDbRepo instance;
+
+    private ConversationDbRepo() {
+
+    }
+
+    public static ConversationDbRepo getInstance(){
+        if(instance == null) {
+            Properties properties = new Properties();
+
+            try (InputStream input = UserDbRepo.class.getClassLoader().getResourceAsStream("config.properties")) {
+                // Check if the properties file is found in the classpath
+                if (input == null) {
+                    System.out.println("Unable to find config.properties");
+                    return null;
+                }
+
+                // Load the properties file
+                properties.load(input);
+
+                // Read properties by their keys
+                String url = properties.getProperty("url");
+                String username = properties.getProperty("username");
+                String password = properties.getProperty("password");
+                String conversationsTable = properties.getProperty("conversationsTable");
+                instance = new ConversationDbRepo(url, username, password, conversationsTable );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return instance;
+    }
+
+
+    private ConversationDbRepo(String url, String username, String password, String conversationsTable) {
         this.url = url;
         this.username = username;
         this.password = password;

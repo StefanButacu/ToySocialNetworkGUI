@@ -14,14 +14,14 @@ public class MyAlert {
         alert.setContentText(text);
         alert.getDialogPane().getStylesheets().add("style/styleAlerts.css");
         ((Stage)alert.getDialogPane().getScene().getWindow())
-                .getIcons().add(new Image("/images/logo_small.png"));
+                .getIcons().add(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources\\images\\logo_small.png"));
         ImageView img;
         if (alertType == Alert.AlertType.WARNING)
-            img = new ImageView(new Image("/images/alert-warning.png"));
+            img = new ImageView(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources/images/alert-warning.png"));
         else if (alertType == Alert.AlertType.ERROR)
-            img = new ImageView(new Image("/images/alert-error.png"));
+            img = new ImageView(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources/images/alert-error.png"));
         else
-            img = new ImageView(new Image("/images/alert-information.png"));
+            img = new ImageView(new Image("E:\\Anul3Sem2\\DesignPatterns\\ToySocialNetworkGUI\\src\\main\\resources/images/alert-information.png"));
         img.setFitWidth(32);
         img.setFitHeight(32);
         alert.setGraphic(img);

@@ -4,6 +4,17 @@ import com.toysocialnetworkgui.domain.Friendship;
 
 public class FriendshipValidator implements Validator<Friendship> {
 
+    private static FriendshipValidator instance;
+    private FriendshipValidator(){
+
+    }
+    public static FriendshipValidator getInstance() {
+        if(instance == null){
+            instance = new FriendshipValidator();
+        }
+        return instance;
+    }
+
     /**
      * Validates a friendship
      * @param friendship - the friendship to be validated

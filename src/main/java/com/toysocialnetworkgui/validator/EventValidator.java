@@ -4,6 +4,16 @@ import com.toysocialnetworkgui.domain.Event;
 
 public class EventValidator implements  Validator<Event>{
 
+    private static EventValidator instance;
+    private EventValidator(){
+
+    }
+    public static EventValidator getInstance() {
+        if(instance == null){
+            instance = new EventValidator();
+        }
+        return instance;
+    }
     @Override
     public void validate(Event event) throws ValidatorException {
         if (event.getName().isEmpty() ||
