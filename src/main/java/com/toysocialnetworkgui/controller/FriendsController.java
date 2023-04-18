@@ -5,10 +5,9 @@ import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.db.DbException;
 import com.toysocialnetworkgui.repository.db.FriendshipDbRepo;
 import com.toysocialnetworkgui.repository.observer.Observer;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.UserFriendDTO;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -59,29 +58,29 @@ public class FriendsController implements Observer {
     Button buttonNextPage;
 
     private AnchorPane rightPane;
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private String currentSearchPattern;
     private int pageNumber;
     private int pageSize;
     private int currentMonthFilter;
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane) {
+    public void initialize(Facade facade, User loggedUser, AnchorPane rightPane) {
         this.rightPane = rightPane;
-        this.service = service;
+        this.facade = facade;
         this.loggedUser = loggedUser;
         currentMonthFilter = 0;
         pageNumber = 1;
         pageSize = 5;
         currentSearchPattern = "";
-        service.getFriendshipRepo().addObserver(this);
+        facade.getFriendshipRepo().addObserver(this);
         comboBoxMonth.setItems(getMonths());
         initializeFriendsList();
         reloadFriends();
     }
 
     private ObservableList<UserFriendDTO> getFriends() {
-        return FXCollections.observableArrayList(service
+        return FXCollections.observableArrayList(facade
                 .getFriendshipsDTOMonthFilteredPage(loggedUser.getEmail(), pageNumber, pageSize, currentSearchPattern, currentMonthFilter));
     }
 
@@ -181,7 +180,7 @@ public class FriendsController implements Observer {
     }
 
     private int getLastPageNumber() {
-        return ((service.getUserFriendsMonthFilteredSize(
+        return ((facade.getUserFriendsMonthFilteredSize(
                 loggedUser.getEmail(), currentSearchPattern, currentMonthFilter) - 1) / pageSize) + 1;
     }
 
@@ -240,7 +239,7 @@ public class FriendsController implements Observer {
             return;
         UserFriendDTO friend = tableViewFriends.getSelectionModel().getSelectedItem();
         try {
-            new Thread(() -> service.removeFriendship(loggedUser.getEmail(), friend.getEmail())).start();
+            new Thread(() -> facade.removeFriendship(loggedUser.getEmail(), friend.getEmail())).start();
         } catch (RepoException | DbException e) {
             MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
         }
@@ -254,7 +253,7 @@ public class FriendsController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("conversationScene.fxml"));
         Parent root = loader.load();
         ConversationController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane, friend.getEmail());
+        controller.initialize(facade, loggedUser, rightPane, friend.getEmail());
         rightPane.getChildren().setAll(root);
     }
 

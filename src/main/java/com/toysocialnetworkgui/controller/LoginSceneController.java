@@ -1,8 +1,7 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
-import com.toysocialnetworkgui.utils.CONSTANTS;
+import com.toysocialnetworkgui.service.*;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.PasswordEncryptor;
 import javafx.fxml.FXML;
@@ -18,32 +17,56 @@ import java.io.IOException;
 public class LoginSceneController {
     private Stage window;
 
-    private Service service;
+    private Facade facade;
     @FXML
     private TextField textFieldEmail;
 
     @FXML
     private TextField textFieldPassword;
 
-    public void initialize(Service service, Stage primaryStage) {
-        this.service = service;
+    private UserAuth databaseAuthService;
+    private UserAuth googleAuthService;
+
+    public void initialize(Facade facade, Stage primaryStage) {
+        this.facade = facade;
         this.window = primaryStage;
+        this.databaseAuthService = new DefaultUserAuth(facade);
+        googleAuthService = new AuthAdapter(new ThirdPartyAuth());
     }
 
     @FXML
     protected void onLoginButtonClick() throws IOException {
-        User loggedUser = this.service.getUser(textFieldEmail.getText());
-        if (loggedUser == null || !loggedUser.getPassword().equals(PasswordEncryptor.toHexString(PasswordEncryptor.getSHA(textFieldPassword.getText())))) {
-            MyAlert.StartAlert("Error", "Wrong email or password", Alert.AlertType.ERROR);
-            return;
+        boolean isAuthenticated = databaseAuthService.login(textFieldEmail.getText(), textFieldPassword.getText());
+        if(isAuthenticated) {
+            User loggedUser = this.facade.getUser(textFieldEmail.getText());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
+            Parent root = loader.load();
+            LoggedSceneController controller = loader.getController();
+            controller.initialize(facade, loggedUser, window);
+            Scene scene = new Scene(root);
+            window.setScene(scene);
         }
+        else {
+            MyAlert.StartAlert("Error", "Wrong email or password", Alert.AlertType.ERROR);
+        }
+    }
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
-        Parent root = loader.load();
-        LoggedSceneController controller = loader.getController();
-        controller.initialize(service, loggedUser, window);
-        Scene scene = new Scene(root);
-        window.setScene(scene);
+
+    @FXML
+    protected void onGoogleButtonClick() throws IOException {
+        boolean isAuthenticated = googleAuthService.login("stef@gmail.com", "123456");
+        if(isAuthenticated) {
+            User loggedUser = this.facade.getUser("stef@gmail.com");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
+            Parent root = loader.load();
+            LoggedSceneController controller = loader.getController();
+            controller.initialize(facade, loggedUser, window);
+            Scene scene = new Scene(root);
+            window.setScene(scene);
+        }
+        else {
+            MyAlert.StartAlert("Error", "Wrong email or password", Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
@@ -51,7 +74,7 @@ public class LoginSceneController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("createAccount.fxml"));
         Parent root = loader.load();
         CreateAccountController controller = loader.getController();
-        controller.initialize(service, window);
+        controller.initialize(facade, window);
 
         window.getScene().setRoot(root);
     }

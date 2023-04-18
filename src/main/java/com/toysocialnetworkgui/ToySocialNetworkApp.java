@@ -19,7 +19,9 @@ public class ToySocialNetworkApp extends Application {
 
     Scene loginScene;
     LoginSceneController loginSceneController;
-    Facade service;
+    Facade facade;
+
+    UserAuth defaultUserAuth;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -29,7 +31,7 @@ public class ToySocialNetworkApp extends Application {
 
         loginScene = new Scene(fxmlLogin.load());
         loginSceneController = fxmlLogin.getController();
-        loginSceneController.initialize(service, primaryStage);
+        loginSceneController.initialize(facade, primaryStage);
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
         primaryStage.setUserData(exec);
         primaryStage.setOnCloseRequest(event ->
@@ -53,7 +55,7 @@ public class ToySocialNetworkApp extends Application {
         //  - Builder (x) Creational
         //  - Factory? Creational
         //  - Strategy Behavioral
-        //  - Adapter Structural
+        //  - Adapter(x) Structural UserAuth ( ThirdPartyAuth, AuthAdapter, UserAuth)
         //  - Facade(x) Structural All controller have a facade to interact with the system
     }
 
@@ -77,6 +79,7 @@ public class ToySocialNetworkApp extends Application {
         EventDbRepo eventRepo = EventDbRepo.getInstance();
         EventsSubscriptionDbRepo eventsSubscriptionRepo = EventsSubscriptionDbRepo.getInstance();
         EventService eventService = new EventService(eventRepo, eventsSubscriptionRepo);
-        this.service = new Facade(uSrv, fSrv, mSrv, mrSrv, network, eventService);
+        this.facade = new Facade(uSrv, fSrv, mSrv, mrSrv, network, eventService);
+        this.defaultUserAuth = new DefaultUserAuth(facade);
     }
 }

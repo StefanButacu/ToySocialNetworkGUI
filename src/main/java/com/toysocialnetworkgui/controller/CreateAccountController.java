@@ -41,7 +41,6 @@ public class CreateAccountController {
         this.facade = service;
         this.window = window;
         // TODO
-        //  Maybe remove this if it doesnt look nice
         //  Need to ADD this as VM argument --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls
         validationSupport = new ValidationSupport();
         validationSupport.registerValidator(textFieldFirstname, Validator.createEmptyValidator("Field is required"));
