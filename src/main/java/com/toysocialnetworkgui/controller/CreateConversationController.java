@@ -1,7 +1,7 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CreateConversationController {
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private int pageNumber;
     private int pageSize;
@@ -43,8 +43,8 @@ public class CreateConversationController {
     @FXML
     Button nextPage;
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane) {
-        this.service = service;
+    public void initialize(Facade service, User loggedUser, AnchorPane rightPane) {
+        this.facade = service;
         this.loggedUser = loggedUser;
         this.pageNumber = 1;
         this.pageSize = 5;
@@ -54,7 +54,7 @@ public class CreateConversationController {
     }
 
     private void reloadFriends() {
-        listFriends.getItems().setAll(service.getUserFriendsFilteredPage(loggedUser.getEmail(), pageNumber, pageSize, currentSearchPattern));
+        listFriends.getItems().setAll(facade.getUserFriendsFilteredPage(loggedUser.getEmail(), pageNumber, pageSize, currentSearchPattern));
     }
 
     @FXML
@@ -73,7 +73,7 @@ public class CreateConversationController {
 
     @FXML
     protected void onButtonNextPageClick() {
-        int lastPage = ((service
+        int lastPage = ((facade
                 .getUserFriendsFilteredSize(loggedUser.getEmail(), currentSearchPattern) - 1) / pageSize) + 1;
         if (pageNumber == lastPage)
             return;
@@ -108,12 +108,12 @@ public class CreateConversationController {
         List<String> participantsEmails = new ArrayList<>();
         participantsEmails.add(loggedUser.getEmail());
         listConversationFriends.getItems().forEach(f -> participantsEmails.add(f.getEmail()));
-        int convId = service.getConversation(participantsEmails).getID();
+        int convId = facade.getConversation(participantsEmails).getID();
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("conversationScene.fxml"));
         Parent root = loader.load();
         ConversationController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane, convId);
+        controller.initialize(facade, loggedUser, rightPane, convId);
         rightPane.getChildren().setAll(root);
     }
 }

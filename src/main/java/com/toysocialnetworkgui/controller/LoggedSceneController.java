@@ -6,7 +6,7 @@ import com.toysocialnetworkgui.repository.db.EventsSubscriptionDbRepo;
 import com.toysocialnetworkgui.repository.db.FriendshipDbRepo;
 import com.toysocialnetworkgui.repository.observer.Observer;
 import com.toysocialnetworkgui.service.ConversationService;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.CONSTANTS;
 import com.toysocialnetworkgui.utils.MyAlert;
 import javafx.fxml.FXML;
@@ -75,20 +75,20 @@ public class LoggedSceneController implements Observer {
 
     private ScheduledFuture<?> task;
     private User loggedUser;
-    private Service service;
+    private Facade facade;
     private Stage window;
 
-    public void initialize(Service service, User user, Stage window) {
+    public void initialize(Facade facade, User user, Stage window) {
         this.window = window;
         this.loggedUser = user;
-        this.service = service;
+        this.facade = facade;
 
-        service.getFriendshipRepo().addObserver(this);
-        service.getEventsSubscriptionRepo().addObserver(this);
-        service.getConversationService().addObserver(this);
+        facade.getFriendshipRepo().addObserver(this);
+        facade.getEventsSubscriptionRepo().addObserver(this);
+        facade.getConversationService().addObserver(this);
 
         setLoggedUser(user);
-        int numberOfNotification = service.getUserUpcomingEvents(loggedUser.getEmail()).size();
+        int numberOfNotification = facade.getUserUpcomingEvents(loggedUser.getEmail()).size();
         if (numberOfNotification != 0) {
             imageViewNotification.setImage(new Image("images/active_notification.png"));
         } else {
@@ -104,7 +104,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
         Parent root = loader.load();
         LoggedSceneController controller = loader.getController();
-        controller.initialize(service, loggedUser, window);
+        controller.initialize(facade, loggedUser, window);
         window.getScene().setRoot(root);
     }
 
@@ -127,7 +127,7 @@ public class LoggedSceneController implements Observer {
     private void startTask() {
         task = ((ScheduledExecutorService)window.getUserData())
                 .scheduleAtFixedRate(() -> {
-                    if (!service.getUserUpcomingEvents(loggedUser.getEmail()).isEmpty())
+                    if (!facade.getUserUpcomingEvents(loggedUser.getEmail()).isEmpty())
                         if (!imageViewNotification.getImage().getUrl().equals("images/no_notification.png"))
                             imageViewNotification.setImage(new Image("images/active_notification.png"));
                 }, 5, 10, TimeUnit.SECONDS);
@@ -152,9 +152,9 @@ public class LoggedSceneController implements Observer {
         lastName = lastName.substring(0,1).toUpperCase() + lastName.substring(1).toLowerCase();
 
         textUserFullName.setText(firstName + " "+ lastName);
-        textNrEvents.setText(String.valueOf(service.getUserEvents(loggedUser.getEmail()).size()));
-        textNrFriends.setText(String.valueOf(service.getUserFriends(loggedUser.getEmail()).size()));
-        textNrConversations.setText(String.valueOf(service.getUserConversations(loggedUser.getEmail()).size()));
+        textNrEvents.setText(String.valueOf(facade.getUserEvents(loggedUser.getEmail()).size()));
+        textNrFriends.setText(String.valueOf(facade.getUserFriends(loggedUser.getEmail()).size()));
+        textNrConversations.setText(String.valueOf(facade.getUserConversations(loggedUser.getEmail()).size()));
     }
 
     @FXML
@@ -162,7 +162,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("friends.fxml"));
         Parent root = loader.load();
         FriendsController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 
@@ -171,7 +171,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("activitiesReportChooseDate.fxml"));
         Parent root = loader.load();
         ActivitiesReportChooseDateController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 
@@ -180,7 +180,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("friendReportChooseDate.fxml"));
         Parent root = loader.load();
         FriendReportChooseDateController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 
@@ -189,10 +189,10 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("updateUser.fxml"));
         Parent root = loader.load();
         UpdateUserController controller = loader.getController();
-        controller.initialize(loggedUser, window, service);
+        controller.initialize(loggedUser, window, facade);
         rightPane.getChildren().setAll(root);
 
-        setLoggedUser(service.getUser(loggedUser.getEmail()));
+        setLoggedUser(facade.getUser(loggedUser.getEmail()));
     }
 
     @FXML
@@ -200,7 +200,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("conversationScene.fxml"));
         Parent root = loader.load();
         ConversationController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 
@@ -209,7 +209,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("eventsScene.fxml"));
         Parent dashboard = fxmlLoader.load();
         EventsController controller = fxmlLoader.getController();
-        controller.initialize(service, loggedUser, window, EventWantedView.ALL);
+        controller.initialize(facade, loggedUser, window, EventWantedView.ALL);
         rightPane.getChildren().setAll(dashboard);
     }
 
@@ -222,7 +222,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("requestsScene.fxml"));
         Parent dashboard = loader.load();
         RequestsController controller = loader.getController();
-        controller.initialize(service, loggedUser);
+        controller.initialize(facade, loggedUser);
         rightPane.getChildren().setAll(dashboard);
     }
 
@@ -235,7 +235,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("loginScene.fxml"));
         Parent root = loader.load();
         LoginSceneController controller = loader.getController();
-        controller.initialize(service, window);
+        controller.initialize(facade, window);
         window.setScene(new Scene(root, CONSTANTS.LOGIN_SCREEN_WIDTH, CONSTANTS.LOGIN_SCREEN_HEIGHT));
     }
 
@@ -245,7 +245,7 @@ public class LoggedSceneController implements Observer {
      */
     @FXML
     public void clearNotificationImage() throws IOException {
-        if (service.getUserEventsSize(loggedUser.getEmail()) == 0) {
+        if (facade.getUserEventsSize(loggedUser.getEmail()) == 0) {
             MyAlert.StartAlert("Alert!", "You didn't subscribe to any event", Alert.AlertType.INFORMATION);
             return;
         }
@@ -254,7 +254,7 @@ public class LoggedSceneController implements Observer {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("eventsScene.fxml"));
         Parent dashboard = fxmlLoader.load();
         EventsController controller = fxmlLoader.getController();
-        controller.initialize(service, loggedUser, window, EventWantedView.SUBSCRIBED);
+        controller.initialize(facade, loggedUser, window, EventWantedView.SUBSCRIBED);
         rightPane.getChildren().setAll(dashboard);
     }
 

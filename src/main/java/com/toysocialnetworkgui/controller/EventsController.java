@@ -5,14 +5,13 @@ import com.toysocialnetworkgui.domain.EventWantedView;
 import com.toysocialnetworkgui.domain.User;
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.db.DbException;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.CONSTANTS;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.validator.ValidatorException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -32,7 +31,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class EventsController {
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private Stage window;
     @FXML
@@ -104,10 +103,10 @@ public class EventsController {
     private int currentEventId;
     private String currentPattern;
 
-    public void initialize(Service service, User loggedUser, Stage window, EventWantedView view) {
+    public void initialize(Facade service, User loggedUser, Stage window, EventWantedView view) {
         uploadedPhoto = false;
         lastEventPicturePath = "";
-        this.service = service;
+        this.facade = service;
         this.loggedUser = loggedUser;
         this.window = window;
         if (view == EventWantedView.SUBSCRIBED && service.getFilteredUserEventsSize(loggedUser.getEmail(), "") == 0) {
@@ -226,7 +225,7 @@ public class EventsController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
         Parent root = loader.load();
         LoggedSceneController controller = loader.getController();
-        controller.initialize(service, loggedUser, window);
+        controller.initialize(facade, loggedUser, window);
         window.getScene().setRoot(root);
     }
 
@@ -243,8 +242,8 @@ public class EventsController {
         String description = textCreateEventDescription.getText();
         String creator = loggedUser.getEmail();
         try {
-            service.addEvent(name,creator,location,category, description, startDate, endDate, lastEventPicturePath);
-            initialize(service, loggedUser, window, EventWantedView.ALL);
+            facade.addEvent(name,creator,location,category, description, startDate, endDate, lastEventPicturePath);
+            initialize(facade, loggedUser, window, EventWantedView.ALL);
         }
         catch (ValidatorException | DbException | RepoException e) {
             MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.ERROR);
@@ -257,7 +256,7 @@ public class EventsController {
     @FXML
     protected void onSubscribeClick() {
         try {
-            service.subscribeUserToEvent(currentEventId, loggedUser.getEmail());
+            facade.subscribeUserToEvent(currentEventId, loggedUser.getEmail());
             loadEvent();
 
         } catch (RepoException | DbException e) {
@@ -269,7 +268,7 @@ public class EventsController {
      * Unsubscribe from event from ONLY SUBSCRIBED VIEW
      */
     public void onUnsubscribeButtonClick() {
-        service.unsubscribeUserFromEvent(currentEventId, loggedUser.getEmail());
+        facade.unsubscribeUserFromEvent(currentEventId, loggedUser.getEmail());
         if (pageNumber > 1) pageNumber--;
         loadEvent();
 
@@ -315,11 +314,11 @@ public class EventsController {
     }
 
     public void onButtonSeeAllEvents() {
-        initialize(service, loggedUser, window, EventWantedView.ALL);
+        initialize(facade, loggedUser, window, EventWantedView.ALL);
     }
 
     public void onButtonSeeSubscribedEvents(){
-        initialize(service, loggedUser, window, EventWantedView.SUBSCRIBED);
+        initialize(facade, loggedUser, window, EventWantedView.SUBSCRIBED);
     }
 
     /**
@@ -332,23 +331,23 @@ public class EventsController {
     public void loadEvent() {
         int lastPage = getLastPageNumber();
         if (lastPage < 1) {
-            if (service.getEventsSize() == 0) initialize(service, loggedUser, window, EventWantedView.CREATE);
-            else initialize(service, loggedUser, window, EventWantedView.ALL);
+            if (facade.getEventsSize() == 0) initialize(facade, loggedUser, window, EventWantedView.CREATE);
+            else initialize(facade, loggedUser, window, EventWantedView.ALL);
             return;
         }
         buttonPreviousEvent.setVisible(pageNumber != 1);
         buttonNextEvent.setVisible(pageNumber != lastPage);
         Event event;
         if (eventWantedView == EventWantedView.SUBSCRIBED)
-            event = service.getFilteredUserEventsPage(loggedUser.getEmail(), pageNumber, 1, currentPattern).get(0);
+            event = facade.getFilteredUserEventsPage(loggedUser.getEmail(), pageNumber, 1, currentPattern).get(0);
         else if (eventWantedView == EventWantedView.ALL)
-            event = service.getFilteredEventsPage(pageNumber, 1, currentPattern).get(0);
+            event = facade.getFilteredEventsPage(pageNumber, 1, currentPattern).get(0);
         else {
             MyAlert.StartAlert("Error", "Error on loading event", Alert.AlertType.WARNING);
             return;
         }
         currentEventId = event.getId();
-        boolean isSubscribedToCurrentEvent = service.isSubscribed(loggedUser.getEmail(), currentEventId);
+        boolean isSubscribedToCurrentEvent = facade.isSubscribed(loggedUser.getEmail(), currentEventId);
         buttonUnsubscribeEvent.setVisible(isSubscribedToCurrentEvent);
         buttonSubscribeEvent.setVisible(!isSubscribedToCurrentEvent);
         populateSavedEvent(event);
@@ -378,13 +377,13 @@ public class EventsController {
     }
 
     private int getLastPageNumber() {
-        if (eventWantedView == EventWantedView.SUBSCRIBED) return service.getFilteredUserEventsSize(loggedUser.getEmail(), currentPattern);
-        if (eventWantedView == EventWantedView.ALL) return service.getFilteredEventsSize(currentPattern);
+        if (eventWantedView == EventWantedView.SUBSCRIBED) return facade.getFilteredUserEventsSize(loggedUser.getEmail(), currentPattern);
+        if (eventWantedView == EventWantedView.ALL) return facade.getFilteredEventsSize(currentPattern);
         return 0;
     }
 
     public void onButtonVisibleCreate() {
-        initialize(service, loggedUser, window, EventWantedView.CREATE);
+        initialize(facade, loggedUser, window, EventWantedView.CREATE);
     }
 
     /**

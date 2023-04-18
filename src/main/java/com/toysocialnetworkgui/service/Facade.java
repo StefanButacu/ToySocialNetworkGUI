@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 
-public class Service {
+public class Facade {
     private final UserService userService;
     private final FriendshipService friendshipService;
     private final MessageService messageService;
@@ -22,7 +22,7 @@ public class Service {
     private final Network network;
     private final EventService eventService;
 
-    public Service(UserService userService, FriendshipService friendshipService, MessageService messageService, ConversationService conversationService, Network network, EventService eventService) {
+    public Facade(UserService userService, FriendshipService friendshipService, MessageService messageService, ConversationService conversationService, Network network, EventService eventService) {
         this.userService = userService;
         this.friendshipService = friendshipService;
         this.messageService = messageService;

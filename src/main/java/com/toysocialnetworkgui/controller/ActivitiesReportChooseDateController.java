@@ -1,20 +1,16 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.IOException;
@@ -28,12 +24,12 @@ public class ActivitiesReportChooseDateController {
     @FXML
     Button buttonGenerate;
 
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private AnchorPane rightPane;
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane) {
-        this.service = service;
+    public void initialize(Facade facade, User loggedUser, AnchorPane rightPane) {
+        this.facade = facade;
         this.loggedUser = loggedUser;
         this.rightPane = rightPane;
         Callback<DatePicker, DateCell> dontLetUserPickEarlyEnd = dontLetUserPickEarlyDateThanStart();
@@ -76,7 +72,7 @@ public class ActivitiesReportChooseDateController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("activitiesReport.fxml"));
         Parent root = loader.load();
         ActivitiesReportController controller = loader.getController();
-        controller.initialize(service, loggedUser, dateFrom, dateUntil, rightPane);
+        controller.initialize(facade, loggedUser, dateFrom, dateUntil, rightPane);
         rightPane.getChildren().setAll(root);
     }
 }

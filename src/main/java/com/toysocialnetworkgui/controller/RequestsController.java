@@ -6,7 +6,7 @@ import com.toysocialnetworkgui.repository.db.DbException;
 import com.toysocialnetworkgui.repository.db.FriendshipDbRepo;
 import com.toysocialnetworkgui.repository.db.FriendshipRequestDbRepo;
 import com.toysocialnetworkgui.repository.observer.Observer;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.CommonFriendsDTO;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.UserRequestDTO;
@@ -26,7 +26,7 @@ import javafx.scene.text.Text;
 import java.time.format.DateTimeFormatter;
 
 public class RequestsController implements Observer {
-    private Service service;
+    private Facade facade;
     private User loggedUser;
 
     @FXML
@@ -79,15 +79,15 @@ public class RequestsController implements Observer {
 
     private String currentPattern;
 
-    public void initialize(Service service, User loggedUser) {
-        this.service = service;
+    public void initialize(Facade facade, User loggedUser) {
+        this.facade = facade;
         this.loggedUser = loggedUser;
         currentPattern = "";
         initializeRequestsList();
         tableSentRequestsView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableReceivedRequestsView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        service.getRequestRepo().addObserver(this);
-        service.getFriendshipRepo().addObserver(this);
+        facade.getRequestRepo().addObserver(this);
+        facade.getFriendshipRepo().addObserver(this);
     }
 
     /**
@@ -110,7 +110,7 @@ public class RequestsController implements Observer {
 
     private ObservableList<CommonFriendsDTO> getNotFriends() {
         return FXCollections.observableArrayList(
-                service.getUserFilteredCommonFriendsDTO(loggedUser.getEmail(), currentPattern));
+                facade.getUserFilteredCommonFriendsDTO(loggedUser.getEmail(), currentPattern));
     }
 
     private void initializeAddFriendList() {
@@ -349,11 +349,11 @@ public class RequestsController implements Observer {
     }
 
     private ObservableList<UserRequestDTO> getSentRequests() {
-        return FXCollections.observableArrayList(service.getUserSentRequests(loggedUser.getEmail()));
+        return FXCollections.observableArrayList(facade.getUserSentRequests(loggedUser.getEmail()));
     }
 
     private ObservableList<UserRequestDTO> getReceivedRequests() {
-        return FXCollections.observableArrayList(service.getUserReceivedRequests(loggedUser.getEmail()));
+        return FXCollections.observableArrayList(facade.getUserReceivedRequests(loggedUser.getEmail()));
     }
 
     /**
@@ -381,7 +381,7 @@ public class RequestsController implements Observer {
         UserRequestDTO requestDTO = tableReceivedRequestsView.getSelectionModel().getSelectedItem();
         if (requestDTO != null) {
             try {
-                service.acceptFriendship(requestDTO.getEmail(), loggedUser.getEmail());
+                facade.acceptFriendship(requestDTO.getEmail(), loggedUser.getEmail());
             } catch (RepoException e) {
                 MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
             }
@@ -393,7 +393,7 @@ public class RequestsController implements Observer {
         UserRequestDTO requestDTO =  tableReceivedRequestsView.getSelectionModel().getSelectedItem();
         if (requestDTO != null) {
             try {
-                service.rejectFriendship(requestDTO.getEmail(), loggedUser.getEmail());
+                facade.rejectFriendship(requestDTO.getEmail(), loggedUser.getEmail());
             } catch (RepoException e) {
                 MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
             }
@@ -405,7 +405,7 @@ public class RequestsController implements Observer {
         UserRequestDTO dto = tableSentRequestsView.getSelectionModel().getSelectedItem();
         if (dto != null) {
             try {
-                service.cancelPendingRequest(loggedUser.getEmail(), dto.getEmail());
+                facade.cancelPendingRequest(loggedUser.getEmail(), dto.getEmail());
             } catch (RepoException e) {
                 MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
             }
@@ -449,7 +449,7 @@ public class RequestsController implements Observer {
         if (friend == null)
             return;
         try {
-            service.addFriendship(loggedUser.getEmail(), friend.getEmail());
+            facade.addFriendship(loggedUser.getEmail(), friend.getEmail());
         } catch (RepoException | DbException e) {
             MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
         }

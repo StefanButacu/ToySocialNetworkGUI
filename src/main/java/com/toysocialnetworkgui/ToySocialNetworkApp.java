@@ -4,14 +4,8 @@ import com.toysocialnetworkgui.controller.LoginSceneController;
 import com.toysocialnetworkgui.domain.network.Network;
 import com.toysocialnetworkgui.repository.db.*;
 import com.toysocialnetworkgui.service.*;
-import com.toysocialnetworkgui.utils.CONSTANTS;
-import com.toysocialnetworkgui.validator.FriendshipValidator;
-import com.toysocialnetworkgui.validator.ConversationParticipantValidator;
-import com.toysocialnetworkgui.validator.MessageValidator;
-import com.toysocialnetworkgui.validator.UserValidator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -25,7 +19,7 @@ public class ToySocialNetworkApp extends Application {
 
     Scene loginScene;
     LoginSceneController loginSceneController;
-    Service service;
+    Facade service;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -53,12 +47,14 @@ public class ToySocialNetworkApp extends Application {
         launch();
         // TODO
         //  - Design Patterns
-        //  - MVC (x)
-        //  - Singleton (x)
-        //  - Observer (x)
-        //  - Builder (x)
-        //  - Factory?
-        //  - Strategy
+        //  - MVC (x) Architecture
+        //  - Singleton (x) Creational
+        //  - Observer (x) Behavioral
+        //  - Builder (x) Creational
+        //  - Factory? Creational
+        //  - Strategy Behavioral
+        //  - Adapter Structural
+        //  - Facade(x) Structural All controller have a facade to interact with the system
     }
 
     private void initialize() {
@@ -81,6 +77,6 @@ public class ToySocialNetworkApp extends Application {
         EventDbRepo eventRepo = EventDbRepo.getInstance();
         EventsSubscriptionDbRepo eventsSubscriptionRepo = EventsSubscriptionDbRepo.getInstance();
         EventService eventService = new EventService(eventRepo, eventsSubscriptionRepo);
-        this.service = new Service(uSrv, fSrv, mSrv, mrSrv, network, eventService);
+        this.service = new Facade(uSrv, fSrv, mSrv, mrSrv, network, eventService);
     }
 }

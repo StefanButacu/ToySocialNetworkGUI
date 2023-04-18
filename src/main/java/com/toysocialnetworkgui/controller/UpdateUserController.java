@@ -2,33 +2,28 @@ package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
 import com.toysocialnetworkgui.repository.db.DbException;
-import com.toysocialnetworkgui.service.Service;
-import com.toysocialnetworkgui.utils.CONSTANTS;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.PasswordEncryptor;
 import com.toysocialnetworkgui.validator.ValidatorException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 public class UpdateUserController {
-    private Service service;
+    private Facade facade;
     private User loggedUser;
 
     @FXML
@@ -55,19 +50,19 @@ public class UpdateUserController {
             MyAlert.StartAlert("Error", "Passwords do not match!", Alert.AlertType.WARNING);
         } else
             try {
-                loggedUser = service.updateUser(textFieldFirstname.getText(), textFieldLastname.getText(), loggedUser.getEmail(), textFieldPassword.getText(), lastProfilePicturePath);
+                loggedUser = facade.updateUser(textFieldFirstname.getText(), textFieldLastname.getText(), loggedUser.getEmail(), textFieldPassword.getText(), lastProfilePicturePath);
             } catch (DbException | ValidatorException e) {
                 MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
             }
         FXMLLoader loader = new FXMLLoader(getClass().getResource("loggedScene.fxml"));
         Parent root = loader.load();
         LoggedSceneController controller = loader.getController();
-        controller.initialize(service, loggedUser, window);
+        controller.initialize(facade, loggedUser, window);
         window.getScene().setRoot(root);
     }
 
-    public void initialize(User user, Stage window, Service service) {
-        this.service = service;
+    public void initialize(User user, Stage window, Facade facade) {
+        this.facade = facade;
         this.window = window;
         loggedUser = user;
         lastProfilePicturePath = user.getProfilePicturePath();

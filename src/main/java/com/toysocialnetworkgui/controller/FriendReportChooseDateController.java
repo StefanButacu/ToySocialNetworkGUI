@@ -1,17 +1,13 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.IOException;
@@ -27,12 +23,12 @@ public class FriendReportChooseDateController {
     @FXML
     private ListView<User> listViewFriends;
 
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private AnchorPane rightPane;
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane) {
-        this.service = service;
+    public void initialize(Facade service, User loggedUser, AnchorPane rightPane) {
+        this.facade = service;
         this.loggedUser = loggedUser;
         this.rightPane = rightPane;
         Callback<DatePicker, DateCell> dontLetUserPickEarlyEnd = dontLetUserPickEarlyDateThanStart();
@@ -61,7 +57,7 @@ public class FriendReportChooseDateController {
         };
     }
     private void initializeFriendsList() {
-        listViewFriends.getItems().setAll(service.getUserFriends(loggedUser.getEmail()));
+        listViewFriends.getItems().setAll(facade.getUserFriends(loggedUser.getEmail()));
         listViewFriends.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
     }
 
@@ -87,7 +83,7 @@ public class FriendReportChooseDateController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("friendReport.fxml"));
         Parent root = loader.load();
         FriendReportController controller = loader.getController();
-        controller.initialize(service, loggedUser, otherUser, dateFrom, dateUntil, rightPane);
+        controller.initialize(facade, loggedUser, otherUser, dateFrom, dateUntil, rightPane);
         rightPane.getChildren().setAll(root);
     }
 }

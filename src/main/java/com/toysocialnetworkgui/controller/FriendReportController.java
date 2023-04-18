@@ -1,7 +1,7 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.UserMessageDTO;
 import javafx.event.ActionEvent;
@@ -20,15 +20,11 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.Month;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FriendReportController {
     @FXML
@@ -53,7 +49,7 @@ public class FriendReportController {
 
     int messagesInInterval;
 
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private User otherUser;
     private AnchorPane rightPane;
@@ -61,8 +57,8 @@ public class FriendReportController {
     private LocalDate dateUntil;
 
     List<UserMessageDTO> allMessages;
-    public void initialize(Service service, User loggedUser, User otherUser, LocalDate dateFrom, LocalDate dateUntil, AnchorPane rightPane) {
-        this.service = service;
+    public void initialize(Facade service, User loggedUser, User otherUser, LocalDate dateFrom, LocalDate dateUntil, AnchorPane rightPane) {
+        this.facade = service;
         this.loggedUser = loggedUser;
         this.otherUser = otherUser;
         this.rightPane = rightPane;
@@ -105,7 +101,7 @@ public class FriendReportController {
     }
 
     private List<UserMessageDTO> getConvDto(LocalDate dateFrom, LocalDate dateUntil){
-        allMessages =  service.getConversationUserMessageDTOs(List.of(loggedUser.getEmail(), otherUser.getEmail()));
+        allMessages =  facade.getConversationUserMessageDTOs(List.of(loggedUser.getEmail(), otherUser.getEmail()));
         List<UserMessageDTO> result =  allMessages
                 .stream()
                 .filter(m -> !m.getDate().toLocalDate().isAfter(dateUntil) && !m.getDate().toLocalDate().isBefore(dateFrom))
@@ -147,7 +143,7 @@ public class FriendReportController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("friendReportChooseDate.fxml"));
         Parent root = loader.load();
         FriendReportChooseDateController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 

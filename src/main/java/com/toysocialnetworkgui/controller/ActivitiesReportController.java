@@ -1,7 +1,7 @@
 package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.UserFriendDTO;
 import com.toysocialnetworkgui.utils.UserMessageDTO;
@@ -41,7 +41,7 @@ public class ActivitiesReportController {
     @FXML
     ListView<UserFriendDTO> listViewFriends;
 
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private AnchorPane rightPane;
 
@@ -69,8 +69,8 @@ public class ActivitiesReportController {
     @FXML
     protected Label notEnoughMessages;
 
-    public void initialize(Service service, User loggedUser, LocalDate dateFrom, LocalDate dateUntil, AnchorPane rightPane) {
-        this.service = service;
+    public void initialize(Facade facade, User loggedUser, LocalDate dateFrom, LocalDate dateUntil, AnchorPane rightPane) {
+        this.facade = facade;
         this.loggedUser = loggedUser;
         this.rightPane = rightPane;
         loadFriends(dateFrom, dateUntil);
@@ -82,7 +82,7 @@ public class ActivitiesReportController {
 
     private void populateAllTimeMessagesStatistics() {
         HashMap<String, Integer> convFrq =  new HashMap<>();
-        service.getUserMessageDTOs(loggedUser.getEmail()).forEach(
+        facade.getUserMessageDTOs(loggedUser.getEmail()).forEach(
                         p ->{
                             String sender = p.getSender().getFirstName() + " " + p.getSender().getLastName();
                             if(convFrq.get(sender) == null)
@@ -124,7 +124,7 @@ public class ActivitiesReportController {
 
     private void populateAllTimeFriendStatistics() {
         HashMap<Month, Integer> monthsFrq = new HashMap<>();
-        service.getFriendshipsDTO(loggedUser.getEmail())
+        facade.getFriendshipsDTO(loggedUser.getEmail())
                 .forEach( p -> {
                     LocalDate date = p.getDate();
                     Month month = date.getMonth();
@@ -167,7 +167,7 @@ public class ActivitiesReportController {
 
     private void loadFriends(LocalDate dateFrom, LocalDate dateUntil) {
         listViewFriends.getItems()
-                .setAll(service.getFriendshipsDTO(loggedUser.getEmail())
+                .setAll(facade.getFriendshipsDTO(loggedUser.getEmail())
                         .stream()
                         .filter(f -> !f.getDate().isAfter(dateUntil) && !f.getDate().isBefore(dateFrom))
                         .toList());
@@ -175,7 +175,7 @@ public class ActivitiesReportController {
 
     private void loadMessages(LocalDate dateFrom, LocalDate dateUntil) {
         listViewMessages.getItems()
-                .setAll(service.getUserMessageDTOs(loggedUser.getEmail())
+                .setAll(facade.getUserMessageDTOs(loggedUser.getEmail())
                         .stream()
                         .filter(m -> !m.getDate().toLocalDate().isAfter(dateUntil) && !m.getDate().toLocalDate().isBefore(dateFrom))
                         .toList());
@@ -210,7 +210,7 @@ public class ActivitiesReportController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("activitiesReportChooseDate.fxml"));
         Parent root = loader.load();
         ActivitiesReportChooseDateController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 

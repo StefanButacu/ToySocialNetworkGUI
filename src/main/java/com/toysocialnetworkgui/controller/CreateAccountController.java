@@ -2,14 +2,12 @@ package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.repository.RepoException;
 import com.toysocialnetworkgui.repository.db.DbException;
-import com.toysocialnetworkgui.service.Service;
-import com.toysocialnetworkgui.utils.CONSTANTS;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.validator.ValidatorException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.controlsfx.validation.ValidationSupport;
@@ -19,7 +17,7 @@ import java.io.IOException;
 
 public class CreateAccountController {
     private Stage window;
-    private Service service;
+    private Facade facade;
 
     @FXML
     private Button buttonSubmit;
@@ -39,8 +37,8 @@ public class CreateAccountController {
     public PasswordField textFieldPasswordConfirmation;
     ValidationSupport validationSupport;
 
-    public void initialize(Service service, Stage window) {
-        this.service = service;
+    public void initialize(Facade service, Stage window) {
+        this.facade = service;
         this.window = window;
         // TODO
         //  Maybe remove this if it doesnt look nice
@@ -59,7 +57,7 @@ public class CreateAccountController {
             MyAlert.StartAlert("Error", "Passwords do not match", Alert.AlertType.WARNING);
         }
         try {
-            service.addUser(textFieldFirstname.getText(), textFieldLastname.getText(), textFieldEmail.getText(), textFieldPassword.getText());
+            facade.addUser(textFieldFirstname.getText(), textFieldLastname.getText(), textFieldEmail.getText(), textFieldPassword.getText());
             showLoginScene();
        } catch (RepoException | ValidatorException | DbException | IOException e) {
             MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
@@ -76,7 +74,7 @@ public class CreateAccountController {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("loginScene.fxml"));
         Parent root = loader.load();
         LoginSceneController controller = loader.getController();
-        controller.initialize(service, window);
+        controller.initialize(facade, window);
         window.getScene().setRoot(root);
     }
 }

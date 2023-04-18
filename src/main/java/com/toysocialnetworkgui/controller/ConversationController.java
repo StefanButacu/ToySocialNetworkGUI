@@ -5,7 +5,7 @@ import com.toysocialnetworkgui.domain.User;
 import com.toysocialnetworkgui.repository.db.ConversationDbRepo;
 import com.toysocialnetworkgui.repository.db.MessageDbRepo;
 import com.toysocialnetworkgui.repository.observer.Observer;
-import com.toysocialnetworkgui.service.Service;
+import com.toysocialnetworkgui.service.Facade;
 import com.toysocialnetworkgui.utils.ConversationDTO;
 import com.toysocialnetworkgui.utils.MyAlert;
 import javafx.beans.InvalidationListener;
@@ -34,7 +34,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ConversationController implements Observer {
-    private Service service;
+    private Facade facade;
     private User loggedUser;
     private int idConversation;
     private int lastConvSize;
@@ -72,11 +72,11 @@ public class ConversationController implements Observer {
     @FXML
     Button buttonCreateConversation;
 
-    public void initialize(Service service, User user, AnchorPane rightPane) {
+    public void initialize(Facade facade, User user, AnchorPane rightPane) {
         tableViewMessages.setPlaceholder(new Label("No messages"));
         listConversations.setPlaceholder(new Label("You have no conversations"));
         this.pageSize = 9;
-        this.service = service;
+        this.facade = facade;
         this.loggedUser = user;
         this.rightPane = rightPane;
         this.idConversation = 0;
@@ -85,8 +85,8 @@ public class ConversationController implements Observer {
         this.exec = (ScheduledExecutorService)rightPane.getParent().getScene().getWindow().getUserData();
         reloadConversationsList();
         initializeMessages();
-        service.getConversationRepo().addObserver(this);
-        service.getMessageRepo().addObserver(this);
+        facade.getConversationRepo().addObserver(this);
+        facade.getMessageRepo().addObserver(this);
         listConversations.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             stopTask();
 
@@ -98,14 +98,14 @@ public class ConversationController implements Observer {
             reloadMessages();
 
             task = exec.scheduleAtFixedRate(() -> {
-                if (service.getConversationSize(idConversation) != lastConvSize)
+                if (facade.getConversationSize(idConversation) != lastConvSize)
                     pageNumber = getLastPageNumber();
                     reloadMessages();
             }, 10, 10, TimeUnit.SECONDS);
         });
     }
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane, String convUser) {
+    public void initialize(Facade service, User loggedUser, AnchorPane rightPane, String convUser) {
         int convId = service.getConversation(List.of(loggedUser.getEmail(), convUser)).getID();
         initialize(service, loggedUser, rightPane);
         idConversation = convId;
@@ -114,7 +114,7 @@ public class ConversationController implements Observer {
         listConversations.getSelectionModel().select(conv);
     }
 
-    public void initialize(Service service, User loggedUser, AnchorPane rightPane, Integer convId) {
+    public void initialize(Facade service, User loggedUser, AnchorPane rightPane, Integer convId) {
         initialize(service, loggedUser, rightPane);
         idConversation = convId;
         ConversationDTO conv = listConversations
@@ -137,7 +137,7 @@ public class ConversationController implements Observer {
     }
 
     private void reloadConversationsList() {
-        listConversations.getItems().setAll(service.getUserConversationDTOs(loggedUser.getEmail()));
+        listConversations.getItems().setAll(facade.getUserConversationDTOs(loggedUser.getEmail()));
     }
 
     @FXML
@@ -147,7 +147,7 @@ public class ConversationController implements Observer {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("createConversation.fxml"));
         Parent root = loader.load();
         CreateConversationController controller = loader.getController();
-        controller.initialize(service, loggedUser, rightPane);
+        controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
     }
 
@@ -190,7 +190,7 @@ public class ConversationController implements Observer {
             return;
         }
         String messageText = textFieldMessage.getText();
-        Thread t1 = new Thread(() -> service.sendMessage(idConversation, loggedUser.getEmail(), messageText));
+        Thread t1 = new Thread(() -> facade.sendMessage(idConversation, loggedUser.getEmail(), messageText));
         t1.start();
         textFieldMessage.clear();
         try {
@@ -203,11 +203,11 @@ public class ConversationController implements Observer {
     }
 
     private int getLastPageNumber() {
-        return ((service.getConversation(idConversation).getMessages().size() - 1) / pageSize) + 1;
+        return ((facade.getConversation(idConversation).getMessages().size() - 1) / pageSize) + 1;
     }
   
     private ObservableList<Message> getMessages() {
-        return FXCollections.observableArrayList(service
+        return FXCollections.observableArrayList(facade
                 .getConversationPage(idConversation, pageNumber, pageSize).getMessages());
     }
 
@@ -226,7 +226,7 @@ public class ConversationController implements Observer {
                 Circle imagePlaceHolder = new Circle();
                 imagePlaceHolder.setRadius(20);
                 imagePlaceHolder.setStroke(Color.web("#862CE4"));
-                User u = service.getUser(param.getValue().getSender());
+                User u = facade.getUser(param.getValue().getSender());
                 Image im = new Image(u.getProfilePicturePath());
                 imagePlaceHolder.setFill(new ImagePattern(im));
                 Tooltip.install(imagePlaceHolder, new Tooltip(u.toString()));
@@ -251,7 +251,7 @@ public class ConversationController implements Observer {
         buttonPreviousPage.setVisible(pageNumber != 1);
         buttonNextPage.setVisible(pageNumber != lastPage);
 
-        this.lastConvSize = service.getConversationSize(idConversation);
+        this.lastConvSize = facade.getConversationSize(idConversation);
         tableViewMessages.setItems(getMessages());
     }
 
