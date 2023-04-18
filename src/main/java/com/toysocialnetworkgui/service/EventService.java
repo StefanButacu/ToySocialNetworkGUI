@@ -17,9 +17,13 @@ public class EventService {
     private EventDbRepo eventRepo;
     private EventsSubscriptionDbRepo eventsSubscriptionRepo;
 
-    public EventDbRepo getEventRepo() { return eventRepo; }
+    public EventDbRepo getEventRepo() {
+        return eventRepo;
+    }
 
-    public EventsSubscriptionDbRepo getEventsSubscriptionRepo() { return eventsSubscriptionRepo; }
+    public EventsSubscriptionDbRepo getEventsSubscriptionRepo() {
+        return eventsSubscriptionRepo;
+    }
 
     public EventService(EventDbRepo repo, EventsSubscriptionDbRepo eventsSubscriptionDbRepo) {
         this.eventRepo = repo;
@@ -36,6 +40,7 @@ public class EventService {
 
     /**
      * Returns a page with events
+     *
      * @param firstrow how many events to skip
      * @param rowcount how many events to return
      * @return list of events
@@ -46,9 +51,10 @@ public class EventService {
 
     /**
      * Returns a filtered page of events
+     *
      * @param firstrow how many events to skip
      * @param rowcount how many events to return
-     * @param pattern the string the name of the event has to start with
+     * @param pattern  the string the name of the event has to start with
      * @return list of events
      */
     public List<Event> getFilteredEventsPage(int firstrow, int rowcount, String pattern) {
@@ -61,6 +67,7 @@ public class EventService {
 
     /**
      * Returns a page with events a user is subscribed to
+     *
      * @param firstrow how many events to skip
      * @param rowcount how many events to return
      * @return list of subscribed events
@@ -86,7 +93,8 @@ public class EventService {
     public void updateEvent(String name, String location, String description, LocalDate startDate, LocalDate endDate) {
     }
 
-    public void remove() {}
+    public void remove() {
+    }
 
     public List<Event> getAllEvents() {
         return eventRepo.getAll();
@@ -121,12 +129,20 @@ public class EventService {
         return events;
     }
 
-    public List<User> getUsersForEvent(Event ev){
+    public List<User> getUsersForEvent(Event ev) {
         return null;
     }
 
-    public void saveEvent(String creator, String name, String category, String  location, String description, LocalDate startDate, LocalDate endDate, String eventPhotoPath) {
-        eventRepo.save(new Event(name,creator,location,category, description, startDate, endDate, eventPhotoPath));
+    public void saveEvent(String creator, String name, String category, String location, String description, LocalDate startDate, LocalDate endDate, String eventPhotoPath) {
+        Event event = new Event.EventBuilder().setOrganizer(creator).setName(name).setCategory(category)
+                .setLocation(location)
+                .setDescription(description)
+                .setStart(startDate)
+                .setEnd(endDate)
+                .setPhotoPath(eventPhotoPath)
+                .build();
+        eventRepo.save(event);
+//        eventRepo.save(new Event(name,creator,location,category, description, startDate, endDate, eventPhotoPath));
     }
 
 
@@ -135,18 +151,19 @@ public class EventService {
 
     /**
      * Adds a new subscriber to the event
-     * @param eventId - Integer, ID of an existing event
+     *
+     * @param eventId   - Integer, ID of an existing event
      * @param userEmail - String, email of an existing user
      */
-    public void subscribeUserToEvent(Integer eventId, String userEmail){
-            eventsSubscriptionRepo.addSubscriber(eventId, userEmail);
+    public void subscribeUserToEvent(Integer eventId, String userEmail) {
+        eventsSubscriptionRepo.addSubscriber(eventId, userEmail);
     }
 
     /**
      * Gets an event from repo
+     *
      * @param id - integer
      * @return Returns the event with id same as parameter id; NULL if it doesn't exists
-     *
      */
     public Event getEvent(Integer id) {
         return eventRepo.getEvent(id);
@@ -157,6 +174,6 @@ public class EventService {
     }
 
     public boolean isSubscribed(String email, Integer id) {
-        return eventsSubscriptionRepo.isSubscribed(email,id);
+        return eventsSubscriptionRepo.isSubscribed(email, id);
     }
 }

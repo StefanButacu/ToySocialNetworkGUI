@@ -133,7 +133,18 @@ public class EventDbRepo implements EventRepository {
             LocalDate startDate = LocalDate.parse(resultSet.getString("date_start"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate endDate = LocalDate.parse(resultSet.getString("date_end"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String photoPath = resultSet.getString("photo_path");
-            return new Event(id, nameEv, creator, location, category, description, startDate, endDate,photoPath);
+//            new Event(id, nameEv, creator, location, category, description, startDate, endDate,photoPath);
+
+            return new Event.EventBuilder().setId(id)
+                    .setName(nameEv)
+                    .setOrganizer(creator)
+                    .setLocation(location)
+                    .setCategory(category)
+                    .setDescription(description)
+                    .setStart(startDate)
+                    .setEnd(endDate)
+                    .setPhotoPath(photoPath).build();
+
         }catch (SQLException e){
             throw new DbException(e.getMessage());
         }
@@ -163,7 +174,16 @@ public class EventDbRepo implements EventRepository {
             LocalDate startDate = LocalDate.parse(resultSet.getString("date_start"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate endDate = LocalDate.parse(resultSet.getString("date_end"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String photoPath = resultSet.getString("photo_path");
-            return new Event(id, nameEv, creator, location, category, description, startDate, endDate, photoPath);
+//            return new Event(id, nameEv, creator, location, category, description, startDate, endDate, photoPath);
+            return new Event.EventBuilder().setId(id)
+                    .setName(nameEv)
+                    .setOrganizer(creator)
+                    .setLocation(location)
+                    .setCategory(category)
+                    .setDescription(description)
+                    .setStart(startDate)
+                    .setEnd(endDate)
+                    .setPhotoPath(photoPath).build();
         }catch (SQLException e){
             throw new DbException(e.getMessage());
         }
@@ -308,7 +328,16 @@ public class EventDbRepo implements EventRepository {
             LocalDate startDate = LocalDate.parse(res.getString("date_start"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             LocalDate endDate = LocalDate.parse(res.getString("date_end"), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String photoPath = res.getString("photo_path");
-            events.add(new Event(id, name, creator, location, category, description, startDate, endDate,photoPath));
+//            events.add(new Event(id, name, creator, location, category, description, startDate, endDate,photoPath));
+            events.add( new Event.EventBuilder().setId(id)
+                    .setName(name)
+                    .setOrganizer(creator)
+                    .setLocation(location)
+                    .setCategory(category)
+                    .setDescription(description)
+                    .setStart(startDate)
+                    .setEnd(endDate)
+                    .setPhotoPath(photoPath).build());
         }
         return events;
     }

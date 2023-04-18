@@ -13,8 +13,8 @@ import java.util.Objects;
  * User3 logs at 15:10 -> notify all
  * Users have to implement the observer interface
  * Events has: - A name, a description, LocalDate start, LocalDate end, Participants(Observers)
- *  - TODO
- *      - Do something with image, in bd store the path to the image to event
+ * - TODO
+ * - Do something with image, in bd store the path to the image to event
  */
 public class Event {
 
@@ -28,6 +28,10 @@ public class Event {
     private String category;
     private String organizer;
     private String photoPath;
+
+    public Event() {
+
+    }
 
     public Integer getId() {
         return id;
@@ -45,28 +49,28 @@ public class Event {
         this.organizer = organizer;
     }
 
-    public Event(String name, String organizer, String location, String category, String description, LocalDate start, LocalDate end, String eventPath) {
-        this.organizer = organizer;
-        this.name = name;
-        this.description = description;
-        this.start = start;
-        this.end = end;
-        this.location = location;
-        this.category = category;
-        this.photoPath = eventPath;
-    }
+//    public Event(String name, String organizer, String location, String category, String description, LocalDate start, LocalDate end, String eventPath) {
+//        this.organizer = organizer;
+//        this.name = name;
+//        this.description = description;
+//        this.start = start;
+//        this.end = end;
+//        this.location = location;
+//        this.category = category;
+//        this.photoPath = eventPath;
+//    }
 
-    public Event(Integer id, String name, String organizer, String location, String category, String description, LocalDate start, LocalDate end, String photoPath) {
-        this.id = id;
-        this.organizer = organizer;
-        this.name = name;
-        this.description = description;
-        this.start = start;
-        this.end = end;
-        this.location = location;
-        this.category = category;
-        this.photoPath = photoPath;
-    }
+//    public Event(Integer id, String name, String organizer, String location, String category, String description, LocalDate start, LocalDate end, String photoPath) {
+//        this.id = id;
+//        this.organizer = organizer;
+//        this.name = name;
+//        this.description = description;
+//        this.start = start;
+//        this.end = end;
+//        this.location = location;
+//        this.category = category;
+//        this.photoPath = photoPath;
+//    }
 
     public String getLocation() {
         return location;
@@ -86,6 +90,7 @@ public class Event {
 
     /**
      * Two events are the same if they have the same name. Sorry for this eduard :(
+     *
      * @param o
      * @return
      */
@@ -95,7 +100,7 @@ public class Event {
         if (o == null || getClass() != o.getClass()) return false;
         Event event = (Event) o;
         return Objects.equals(name, event.name);
-        }
+    }
 
     @Override
     public int hashCode() {
@@ -146,5 +151,63 @@ public class Event {
 
     public String getPhotoPath() {
         return photoPath;
+    }
+
+    public static class EventBuilder {
+        private Event event;
+
+        public EventBuilder() {
+            event = new Event();
+        }
+
+        public EventBuilder setId(Integer id) {
+            event.setId(id);
+            return this;
+        }
+
+        public EventBuilder setName(String name) {
+            event.setName(name);
+            return this;
+        }
+
+        public EventBuilder setDescription(String description) {
+            event.setDescription(description);
+            return this;
+        }
+
+        public EventBuilder setStart(LocalDate start) {
+            event.setStart(start);
+            return this;
+        }
+
+        public EventBuilder setEnd(LocalDate end) {
+            event.setEnd(end);
+            return this;
+        }
+
+        public EventBuilder setLocation(String location) {
+            event.setLocation(location);
+            return this;
+        }
+
+        public EventBuilder setCategory(String category) {
+            event.setCategory(category);
+            return this;
+        }
+
+        public EventBuilder setOrganizer(String organizer) {
+            event.setOrganizer(organizer);
+            return this;
+        }
+
+        public EventBuilder setPhotoPath(String photoPath) {
+            event.setLocation(photoPath);
+            return this;
+        }
+
+
+        public Event build() {
+            return event;
+        }
     }
 }

@@ -51,12 +51,17 @@ public class ToySocialNetworkApp extends Application {
 
     public static void main(String[] args) {
         launch();
+        // TODO
+        //  - Design Patterns
+        //  - MVC (x)
+        //  - Singleton (x)
+        //  - Observer (x)
+        //  - Builder (x)
+        //  - Factory?
+        //  - Strategy
     }
 
     private void initialize() {
-        String url = "jdbc:postgresql://localhost:5432/ToySocialNetwork";
-        String username = "postgres";
-        String password = "root";
         // USER
         UserDbRepo uRepo = UserDbRepo.getInstance();
         UserService uSrv = new UserService(uRepo);
