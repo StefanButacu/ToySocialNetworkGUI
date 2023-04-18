@@ -7,6 +7,7 @@ module com.toysocialnetworkgui {
     requires org.kordamp.bootstrapfx.core;
     requires java.sql;
     requires org.apache.pdfbox;
+    requires org.json;
 
     opens com.toysocialnetworkgui to javafx.fxml, javafx.base, javafx.graphics;
     opens com.toysocialnetworkgui.controller to javafx.fxml, javafx.base, javafx.graphics;
@@ -24,4 +25,6 @@ module com.toysocialnetworkgui {
     exports com.toysocialnetworkgui.validator;
     exports com.toysocialnetworkgui.repository;
     exports com.toysocialnetworkgui.repository.db;
+    exports com.toysocialnetworkgui.service.export;
+    opens com.toysocialnetworkgui.service.export to javafx.base, javafx.fxml, javafx.graphics;
 }

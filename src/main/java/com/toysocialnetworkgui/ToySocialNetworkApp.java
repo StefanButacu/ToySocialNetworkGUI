@@ -49,14 +49,14 @@ public class ToySocialNetworkApp extends Application {
         launch();
         // TODO
         //  - Design Patterns
-        //  - MVC (x) Architecture
-        //  - Singleton (x) Creational
-        //  - Observer (x) Behavioral
-        //  - Builder (x) Creational
-        //  - Factory? Creational
-        //  - Strategy Behavioral
-        //  - Adapter(x) Structural UserAuth ( ThirdPartyAuth, AuthAdapter, UserAuth)
-        //  - Facade(x) Structural All controller have a facade to interact with the system
+        //      - MVC (x) Architecture
+        //      - Singleton (x) Creational
+        //      - Observer (x) Behavioral
+        //      - Builder (x) Creational
+        //      - Factory? Creational
+        //      - Strategy (x) (Export PDF/JSON) Behavioral
+        //      - Adapter(x) Structural UserAuth ( ThirdPartyAuth, AuthAdapter, UserAuth)
+        //      - Facade(x) Structural All controller have a facade to interact with the system
     }
 
     private void initialize() {

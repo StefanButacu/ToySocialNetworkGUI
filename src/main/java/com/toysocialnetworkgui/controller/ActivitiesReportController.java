@@ -2,6 +2,9 @@ package com.toysocialnetworkgui.controller;
 
 import com.toysocialnetworkgui.domain.User;
 import com.toysocialnetworkgui.service.Facade;
+import com.toysocialnetworkgui.service.export.ExportStrategy;
+import com.toysocialnetworkgui.service.export.JsonExportStrategy;
+import com.toysocialnetworkgui.service.export.PdfExportStrategy;
 import com.toysocialnetworkgui.utils.MyAlert;
 import com.toysocialnetworkgui.utils.UserFriendDTO;
 import com.toysocialnetworkgui.utils.UserMessageDTO;
@@ -69,6 +72,8 @@ public class ActivitiesReportController {
     @FXML
     protected Label notEnoughMessages;
 
+    private ExportStrategy exportStrategy;
+
     public void initialize(Facade facade, User loggedUser, LocalDate dateFrom, LocalDate dateUntil, AnchorPane rightPane) {
         this.facade = facade;
         this.loggedUser = loggedUser;
@@ -81,38 +86,38 @@ public class ActivitiesReportController {
     }
 
     private void populateAllTimeMessagesStatistics() {
-        HashMap<String, Integer> convFrq =  new HashMap<>();
+        HashMap<String, Integer> convFrq = new HashMap<>();
         facade.getUserMessageDTOs(loggedUser.getEmail()).forEach(
-                        p ->{
-                            String sender = p.getSender().getFirstName() + " " + p.getSender().getLastName();
-                            if(convFrq.get(sender) == null)
-                                convFrq.put(sender, 1);
-                            else{
-                                int frqOld = convFrq.get(sender);
-                                convFrq.put(sender, frqOld + 1);
-                            }
-                        }
-                );
-            for(Map.Entry<String, Integer> senderFr : convFrq.entrySet()){
-                pieChartMessages.getData().add(new PieChart.Data(senderFr.getKey(), senderFr.getValue() ));
-            }
+                p -> {
+                    String sender = p.getSender().getFirstName() + " " + p.getSender().getLastName();
+                    if (convFrq.get(sender) == null)
+                        convFrq.put(sender, 1);
+                    else {
+                        int frqOld = convFrq.get(sender);
+                        convFrq.put(sender, frqOld + 1);
+                    }
+                }
+        );
+        for (Map.Entry<String, Integer> senderFr : convFrq.entrySet()) {
+            pieChartMessages.getData().add(new PieChart.Data(senderFr.getKey(), senderFr.getValue()));
+        }
         vboxMessagesChart.setVisible(convFrq.size() != 0);
         notEnoughMessages.setVisible(convFrq.size() == 0);
         for (final PieChart.Data data : pieChartMessages.getData()) {
-        data.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED,
-                e -> {
-                    String label = String.valueOf(Math.round(data.getPieValue()));
-                    if( Math.round(data.getPieValue()) == 1)
-                         label += " message from " + data.getName();
-                    else
-                        label += " messages from " + data.getName().toLowerCase(Locale.ROOT);
+            data.getNode().addEventHandler(MouseEvent.MOUSE_ENTERED,
+                    e -> {
+                        String label = String.valueOf(Math.round(data.getPieValue()));
+                        if (Math.round(data.getPieValue()) == 1)
+                            label += " message from " + data.getName();
+                        else
+                            label += " messages from " + data.getName().toLowerCase(Locale.ROOT);
                         captionMessages.setText(label);
-                });
-        data.getNode().addEventHandler(MouseEvent.MOUSE_EXITED,
-                e -> {
-                    String label = "Hover slice to get detailed statistics!";
-                    captionMessages.setText(label);
-                });
+                    });
+            data.getNode().addEventHandler(MouseEvent.MOUSE_EXITED,
+                    e -> {
+                        String label = "Hover slice to get detailed statistics!";
+                        captionMessages.setText(label);
+                    });
 
         }
         pieChartMessages.setAnimated(true);
@@ -125,18 +130,18 @@ public class ActivitiesReportController {
     private void populateAllTimeFriendStatistics() {
         HashMap<Month, Integer> monthsFrq = new HashMap<>();
         facade.getFriendshipsDTO(loggedUser.getEmail())
-                .forEach( p -> {
+                .forEach(p -> {
                     LocalDate date = p.getDate();
                     Month month = date.getMonth();
-                    if(monthsFrq.get(month) == null)
-                        monthsFrq.put(month,1);
+                    if (monthsFrq.get(month) == null)
+                        monthsFrq.put(month, 1);
                     else {
                         Integer frq = monthsFrq.get(month);
                         monthsFrq.put(month, frq + 1);
                     }
                 });
-        for(Map.Entry<Month, Integer> monthFr : monthsFrq.entrySet()){
-            pieChartFriendships.getData().add(new PieChart.Data(monthFr.getKey().toString(), monthFr.getValue() ));
+        for (Map.Entry<Month, Integer> monthFr : monthsFrq.entrySet()) {
+            pieChartFriendships.getData().add(new PieChart.Data(monthFr.getKey().toString(), monthFr.getValue()));
         }
         vboxFriendshipChart.setVisible(monthsFrq.size() != 0);
         notEnoughFriends.setVisible(monthsFrq.size() == 0);
@@ -150,7 +155,7 @@ public class ActivitiesReportController {
                     e -> {
 
                         String label = data.getName().toLowerCase() + " : " + Math.round(data.getPieValue());
-                        if( Math.round(data.getPieValue()) == 1)
+                        if (Math.round(data.getPieValue()) == 1)
                             label += " friendship";
                         else
                             label += " friendships";
@@ -189,29 +194,67 @@ public class ActivitiesReportController {
         }
         DirectoryChooser chooser = new DirectoryChooser();
         chooser.setTitle("Save location");
-        File selectedDirectory = chooser.showDialog(((Node)event.getSource()).getScene().getWindow());
-        if(selectedDirectory == null){
+        File selectedDirectory = chooser.showDialog(((Node) event.getSource()).getScene().getWindow());
+        if (selectedDirectory == null) {
             MyAlert.StartAlert("Error!", "Please choose a directory!", Alert.AlertType.ERROR);
             return;
         }
         String path = selectedDirectory.getAbsolutePath();
-        path = path.concat("\\" + textFieldFilename.getText() + ".pdf");
-        try {
-            PDDocument document = new PDDocument();
-            addContent(document);
-            document.save(path);
-            document.close();
+        /// PDF EXPORT
 
-            MyAlert.StartAlert("Report", "Report exported to pdf!", Alert.AlertType.INFORMATION);
-        } catch (IOException e) {
-            MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
-        }
+        path = path.concat("\\" + textFieldFilename.getText());
+        showExportPrompt(path);
 
+//        try {
+//            PDDocument document = new PDDocument();
+//            addContent(document);
+//            document.save(path);
+//            document.close();
+//
+//        } catch (IOException e) {
+//            MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
+//        }
+        ////////////
         FXMLLoader loader = new FXMLLoader(getClass().getResource("activitiesReportChooseDate.fxml"));
         Parent root = loader.load();
         ActivitiesReportChooseDateController controller = loader.getController();
         controller.initialize(facade, loggedUser, rightPane);
         rightPane.getChildren().setAll(root);
+    }
+
+    private void showExportPrompt(String path) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Choose Export Type");
+        alert.setHeaderText("Select the export type");
+        alert.setContentText("Choose your export option:");
+
+        ButtonType jsonExportButton = new ButtonType("Export to JSON");
+        ButtonType pdfExportButton = new ButtonType("Export to PDF");
+        ButtonType cancelButton = new ButtonType("Cancel");
+
+        alert.getButtonTypes().setAll(jsonExportButton, pdfExportButton, cancelButton);
+
+        // Capture the user's choice
+        alert.showAndWait().ifPresent(response -> {
+            if (response == jsonExportButton) {
+                exportStrategy = new JsonExportStrategy();
+                try {
+                    exportStrategy.export(listViewFriends.getItems(), listViewMessages.getItems(), path + ".json");
+                    MyAlert.StartAlert("Report", "Report exported to json!", Alert.AlertType.INFORMATION);
+                } catch (Exception e) {
+                    MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
+                }
+            } else if (response == pdfExportButton) {
+                exportStrategy = new PdfExportStrategy();
+                try {
+                    exportStrategy.export(listViewFriends.getItems(), listViewMessages.getItems(), path + ".pdf");
+                    MyAlert.StartAlert("Report", "Report exported to pdf!", Alert.AlertType.INFORMATION);
+                } catch (Exception e) {
+                    MyAlert.StartAlert("Error", e.getMessage(), Alert.AlertType.WARNING);
+
+                }
+            }
+        });
     }
 
     private void addContent(PDDocument document) throws IOException {

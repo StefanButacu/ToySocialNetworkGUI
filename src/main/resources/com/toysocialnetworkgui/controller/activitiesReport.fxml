@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="650.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.toysocialnetworkgui.controller.ActivitiesReportController">
+<AnchorPane prefHeight="650.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.toysocialnetworkgui.controller.ActivitiesReportController">
    <children>
       <HBox layoutX="87.0" layoutY="12.0" prefHeight="390.0" prefWidth="683.0" spacing="10.0">
          <children>
@@ -33,7 +33,7 @@
       <HBox alignment="TOP_RIGHT" layoutX="466.0" layoutY="402.0" spacing="10.0">
          <children>
             <TextField fx:id="textFieldFilename" promptText="file name" styleClass="my-text-field" />
-            <Button fx:id="buttonExport" mnemonicParsing="false" onAction="#onButtonExportClick" text="Export to pdf" textFill="WHITE" />
+            <Button fx:id="buttonExport" mnemonicParsing="false" onAction="#onButtonExportClick" text="Export" textFill="WHITE" />
          </children>
       </HBox>
       <StackPane layoutX="87.0" layoutY="434.0">
