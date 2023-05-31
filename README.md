@@ -1,7 +1,7 @@
 
 Add VM options and paste this --add-opens=javafx.graphics/javafx.scene=org.controlsfx.controls
 
-Toy Social Network - University Project in collaboration with [Butacu Stefan](https://github.com/StefanButacu) 
+Toy Social Network - University Project in collaboration between [Butacu Stefan](https://github.com/StefanButacu) and [Cadar Eduard](https://github.com/eduardcadar)
 
 ## General info 
   - The application allows the user to create an account, log in, and main features are
